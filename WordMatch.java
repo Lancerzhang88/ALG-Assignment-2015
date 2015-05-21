@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.File;
 import java.util.*;
@@ -47,7 +46,7 @@ public class WordMatch
    public static ArrayList<ArrayList<String>> neighbors;
 
    /**
-    * read from specific file to variable wordsCount
+    * read from specific file to var wordsCount
     *
     * @param filesName  
     */
@@ -92,26 +91,18 @@ public class WordMatch
 
   public static void ReadWordFiles(String fileName) 
   {
-	BufferedReader inFile = null;
     try {
-    	inFile = new BufferedReader(new FileReader(fileName));
-    	String line = null;
-    	while((line = inFile.readLine()) != null) {
-    		ReadFile(line.trim());
-    	}
-      
-      
+      BufferedReader inFile = new BufferedReader(new FileReader(fileName));
+
+          String line = null;
+         //read a whole line from file       
+      while((line = inFile.readLine()) != null) {
+        ReadFile(line.trim());
+      }
     } catch (FileNotFoundException e) {
       System.out.println("File " + fileName + " not found");
     } catch (Exception e) {
       System.out.println("File: " + fileName + " exist problem");
-    } finally {
-    	if(inFile != null)
-			try {
-				inFile.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
     }
   }
 
@@ -128,7 +119,7 @@ public class WordMatch
          }
 
          WriteToFile(findPatternResult, patternResultFile);
-         inFile.close();
+
     } catch (FileNotFoundException e) {
       System.out.println("File " + fileName + " not found");
     } catch (Exception e) {
@@ -137,7 +128,7 @@ public class WordMatch
   }
 
    /**
-    * Find similar word in the list and save results in the variable neighbors with
+    * Find similar word in the list and save results in the var neighbors with
     * same order as words list 
     */
    public static void FindNeighbors()
@@ -175,14 +166,17 @@ public class WordMatch
     * @param left    start number
     * @param right   end number
     */
+   public static int count = 0;
+   
    public static void quickSort(ArrayList<WordCount> list, int left, int right)
    {
+	  System.out.print("\rProcessing percentage: %" + (count++/(double)totalRecureTimes));
       if(left >= right)
          return;
 
-      WordCount pivot = list.get(right);
-      int partition = partition(list, left, right, pivot);
-
+//      WordCount pivot = list.get(right);
+ //     int partition = partition(list, left, right, pivot);
+      int partition = partition(list, left, right);
       quickSort(list, 0, partition - 1);
       quickSort(list, partition + 1, right);
    }
@@ -197,11 +191,13 @@ public class WordMatch
     * @param pivot   middle word
     * @return        the position number of pivot
     */
-   private static int partition(ArrayList<WordCount> list, int left, int right, WordCount pivot)
+   private static int partition(ArrayList<WordCount> list, int left, int right)
    {
+	  /*
       int leftCursor = left - 1;
       int rightCursor = right;
-
+      WordCount pivot = list.get(right);
+      
       while(leftCursor < rightCursor) {
          //Find smaller string
          while(list.get(++leftCursor).compareTo(pivot) < 0);
@@ -215,6 +211,12 @@ public class WordMatch
       }
       swap(list, leftCursor, right);
       return leftCursor;
+      */
+	   WordCount pivot = list.get(right);
+	   while(left < right) {
+		   while(left < right && list.get(right).compareTo(pivot) >= 0) right--;
+		   
+	   }
    }
 
    /**
@@ -271,7 +273,7 @@ public class WordMatch
 
   /**
     * By using symbol * ? to find some target words
-    * Star(*) means zero or mutil chars 
+    * Star(*) means zero or multi chars 
     * Question mark(?) means single char
     *
     * @param format  purpose pattern
@@ -350,25 +352,41 @@ public class WordMatch
 
       return returnStr;
   }
+  
+  public static int totalRecureTimes = 0;
 
   public static void main(String[] args)
   {
+  	long startTime = System.currentTimeMillis();
+
       if(args.length != 4) {
         System.out.println("Error Command: Please Check It Again! ");
         System.out.println("java WordMatch inputFiles.txt wordList.txt patterns.txt result.txt\n");
       } else {
-        //init list
+        //initialize list
         wordsCount = new ArrayList<WordCount>();
         wordsCount.clear();
 
+        long readStartTime = System.currentTimeMillis();
         ReadWordFiles(args[0]);
+        long readEndTime = System.currentTimeMillis();
+        System.out.println("Read Time: " + (readEndTime - readStartTime) + "ms");
+        
         // sort words in the list as alphabet order
+        long sortStartTime = System.currentTimeMillis();
+        totalRecureTimes = (int)(Math.log(wordsCount.size())/Math.log(2));
         WordMatch.quickSort(wordsCount, 0, wordsCount.size()-1);
+        long sortEndTime = System.currentTimeMillis();
+        System.out.println("Sort Time: " + (sortEndTime - sortStartTime) + "ms");
+        System.out.println("Sort times: " + count);
+        System.out.println("List Length: " + wordsCount.size());
         FindNeighbors();
         // Write word list file
         WriteFile(args[1]);
 
         ReadPatternsFile(args[2], args[3]);
       }
+    long endTime = System.currentTimeMillis();
+    System.out.println("Total Time: " + (endTime - startTime) + "ms");
   }
 }                                                           
