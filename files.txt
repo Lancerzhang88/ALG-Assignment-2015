@@ -1,1 +1,1 @@
-t2-dic.txt
+t3-BigWordList.txt

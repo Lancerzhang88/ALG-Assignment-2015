@@ -1,12 +1,28 @@
 ma?
-man 151
-may 208
+mac 1
+mad 1
+mag 1
+mal 1
+man 1
+mao 1
+map 1
+mar 1
+mas 1
+mat 1
+maw 1
+max 1
+may 1
 
 ?o
-do 364
-go 104
-no 500
-so 590
-to 4243
+co 1
+do 1
+go 1
+ho 1
+lo 1
+mo 1
+no 1
+po 1
+so 1
+to 1
 
 

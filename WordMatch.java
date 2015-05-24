@@ -166,18 +166,16 @@ public class WordMatch
     * @param left    start number
     * @param right   end number
     */
-   public static int count = 0;
    
    public static void quickSort(ArrayList<WordCount> list, int left, int right)
    {
-	  System.out.print("\rProcessing percentage: %" + (count++/(double)totalRecureTimes));
       if(left >= right)
          return;
 
 //      WordCount pivot = list.get(right);
  //     int partition = partition(list, left, right, pivot);
       int partition = partition(list, left, right);
-      quickSort(list, 0, partition - 1);
+      quickSort(list, left, partition - 1);
       quickSort(list, partition + 1, right);
    }
 
@@ -212,11 +210,27 @@ public class WordMatch
       swap(list, leftCursor, right);
       return leftCursor;
       */
-	   WordCount pivot = list.get(right);
+	   int mid = (left + right) / 2;
+	   WordCount pivot = list.get(mid);
+	   swap(list, mid, right);
+	   
 	   while(left < right) {
-		   while(left < right && list.get(right).compareTo(pivot) >= 0) right--;
+		   while(left < right && list.get(left).compareTo(pivot) <= 0) left++;
 		   
+		   if(left < right) {
+			   swap(list, left, right);
+			   right--;
+		   }
+		   
+		   while(right>left && list.get(right).compareTo(pivot) >= 0) right--;
+		   
+		   if(right > left) {
+			   swap(list, left, right);
+			   left++;
+		   }
 	   }
+	   
+	   return left;
    }
 
    /**
@@ -273,7 +287,7 @@ public class WordMatch
 
   /**
     * By using symbol * ? to find some target words
-    * Star(*) means zero or multi chars 
+    * Star(*) means zero or mutli chars 
     * Question mark(?) means single char
     *
     * @param format  purpose pattern
@@ -353,7 +367,6 @@ public class WordMatch
       return returnStr;
   }
   
-  public static int totalRecureTimes = 0;
 
   public static void main(String[] args)
   {
@@ -363,7 +376,7 @@ public class WordMatch
         System.out.println("Error Command: Please Check It Again! ");
         System.out.println("java WordMatch inputFiles.txt wordList.txt patterns.txt result.txt\n");
       } else {
-        //initialize list
+        // Initialize list
         wordsCount = new ArrayList<WordCount>();
         wordsCount.clear();
 
@@ -372,19 +385,24 @@ public class WordMatch
         long readEndTime = System.currentTimeMillis();
         System.out.println("Read Time: " + (readEndTime - readStartTime) + "ms");
         
-        // sort words in the list as alphabet order
+        // Sort words in the list as alphabet order
         long sortStartTime = System.currentTimeMillis();
-        totalRecureTimes = (int)(Math.log(wordsCount.size())/Math.log(2));
         WordMatch.quickSort(wordsCount, 0, wordsCount.size()-1);
         long sortEndTime = System.currentTimeMillis();
         System.out.println("Sort Time: " + (sortEndTime - sortStartTime) + "ms");
-        System.out.println("Sort times: " + count);
-        System.out.println("List Length: " + wordsCount.size());
+        
+        // Find neightbors
+        long findNeighborStartTime = System.currentTimeMillis();
         FindNeighbors();
-        // Write word list file
         WriteFile(args[1]);
-
+        long findNeightborEndTime = System.currentTimeMillis();
+        System.out.println("Find Neighbors Time: " + (findNeightborEndTime - findNeighborStartTime) + "ms");
+        
+        // Pattern find process
+        long findPatternStartTime = System.currentTimeMillis();
         ReadPatternsFile(args[2], args[3]);
+        long findPatternEndTime = System.currentTimeMillis();
+        System.out.println("Find Patterns Time: " + (findPatternEndTime - findPatternStartTime) + "ms");
       }
     long endTime = System.currentTimeMillis();
     System.out.println("Total Time: " + (endTime - startTime) + "ms");
